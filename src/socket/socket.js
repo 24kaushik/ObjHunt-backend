@@ -8,6 +8,7 @@ export function initializeSocket(httpServer) {
       allowedHeaders: ["*"],
     },
   });
+  
 
   io.on("connection", (socket) => {
     console.log(`${socket.id} is here`);
