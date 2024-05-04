@@ -26,6 +26,9 @@ function App() {
       console.log(e);
       setMessage((prevMessage) => [...prevMessage, e]);
     });
+    socket.on("error", (msg)=>{
+      alert(msg)
+    })
 
     return () => {
       socket.disconnect();
