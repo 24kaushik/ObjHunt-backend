@@ -38,7 +38,7 @@ function assignRoom() {
 function addPlayer(username, roomId, points = 0) {
   for (let room = 0; room < rooms.length; room++) {
     if (rooms[room].id == roomId) {
-      rooms[room].players.push({ username, points }); // Include points for the player
+      rooms[room].players.push({ username, points: 0 }); // Include points for the player
       console.log(rooms[room]);
       break;
     }
@@ -78,13 +78,49 @@ function generateLeaderboard(roomId) {
 
   return leaderboard;
 }
+function modifyPoints(roomId, pointModifiers) {
+  const room = rooms.find((room) => room.id === roomId);
+  if (!room) {
+    console.log("Room not found");
+    return;
+  }
+
+  Object.entries(pointModifiers).forEach(([username, modifier]) => {
+    const player = room.players.find(
+      (player) => player.username.trim() === username.trim()
+    );
+    if (player) {
+      player.points += modifier;
+      console.log(`Points modified for player ${username} in Room ${roomId}`);
+    } else {
+      console.log(`Player ${username} not found in Room ${roomId}`);
+    }
+  });
+
+  // Log the updated room object
+  console.log(room);
+}
 
 function sendLeaderboardToServer(roomId, leaderboard) {
   // Simulate sending data to the server
   console.log(`Leaderboard for Room ${roomId} sent to server:`, leaderboard);
 }
+// Example usage of modifyPoints function
+modifyPoints(0, {
+  shubhankar: 10, // Add 10 points to player "shubhankar"
+  Rahul: -5, // Deduct 5 points from player "Rahul"
+  Shri: 20, // Add 20 points to player "Shri"
+});
 
 // Example usage:
 // generateLeaderboard(0);
 
-export { rooms, assignNewRoom, assignRoom, addPlayer, removePlayer,sendLeaderboardToServer ,generateLeaderboards };
+export {
+  rooms,
+  assignNewRoom,
+  assignRoom,
+  addPlayer,
+  removePlayer,
+  sendLeaderboardToServer,
+  generateLeaderboard,
+};

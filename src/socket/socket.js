@@ -5,7 +5,8 @@ import {
   assignRoom,
   removePlayer,
   generateLeaderboard,
-  generateLeaderboards,
+  sendLeaderboardToServer,
+  rooms,
 } from "../utils/roomManager.js";
 
 export function initializeSocket(httpServer) {
@@ -74,10 +75,44 @@ export function initializeSocket(httpServer) {
       }
     });
 
-    socket.on("requestLeaderboard", () => {
-      console.log(`${socket.id} requested leaderboard`);
-      // Emit the current leaderboard for all rooms
-      io.emit("leaderboard", generateLeaderboards());
+    socket.on("requestLeaderboard", (roomId) => {
+      console.log(`${socket.id} requested leaderboard for room ${roomId}`);
+      const room = rooms.find((r) => r.id === roomId);
+      if (!room) {
+        io.to(socket.id).emit("message", `Room ${roomId} not found`);
+        return;
+      }
+      // Example usage of modifyPoints function
+      modifyPoints(roomId, {
+        "shubhankar": 10, // Add 10 points to player "shubhankar"
+        "Rahul": -5, // Deduct 5 points from player "Rahul"
+        "Shri": 20, // Add 20 points to player "Shri"
+      });
+      const leaderboard = generateLeaderboard(roomId);
+      io.to(socket.id).emit("leaderboard", leaderboard);
     });
   });
+}
+
+function modifyPoints(roomId, pointModifiers) {
+  const room = rooms.find((room) => room.id === roomId);
+  if (!room) {
+    console.log("Room not found");
+    return;
+  }
+
+  Object.entries(pointModifiers).forEach(([username, modifier]) => {
+    const player = room.players.find(
+      (player) => player.username.trim() === username.trim()
+    );
+    if (player) {
+      player.points += modifier;
+      console.log(`Points modified for player ${username} in Room ${roomId}`);
+    } else {
+      console.log(`Player ${username} not found in Room ${roomId}`);
+    }
+  });
+
+  // Log the updated room object
+  console.log(room);
 }
