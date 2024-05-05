@@ -5,7 +5,7 @@ import {
   assignRoom,
   addPlayer,
   removePlayer,
-  modifyPoints,
+  // modifyPoints,
   generateLeaderboard,
 } from "../utils/roomManager.js";
 import { checkImage } from "../utils/imageManager.js";
@@ -53,7 +53,6 @@ export function initializeSocket(httpServer) {
       io.to(room).emit("leaderboard", generateLeaderboard(room));
     });
 
-
     socket.on("joinRandom", ({ username }) => {
       console.log("joining random room");
       if (!username) {
@@ -74,7 +73,6 @@ export function initializeSocket(httpServer) {
           }
           console.log(rooms);
           io.to(room).emit("leaderboard", generateLeaderboard(room));
-
         }
       }
     });
@@ -86,11 +84,14 @@ export function initializeSocket(httpServer) {
         return;
       }
       // Example usage of modifyPoints function
-     
+
       const leaderboard = generateLeaderboard(roomId);
       io.to(socket.id).emit("leaderboard", leaderboard);
     });
 
+    let imageUploadOrder = [];
+
+    // Modify the socket.on function to keep track of the image upload order
     socket.on("upload", (data) => {
       console.log("got an image");
       const base64Data = data.image.replace(/^data:image\/\w+;base64,/, "");
@@ -98,7 +99,44 @@ export function initializeSocket(httpServer) {
       const filename = Date.now() + "-" + data.filename;
       const isCorrectObject = checkImage(filename, buffer, "bottle");
       console.log(isCorrectObject);
+
+      // Add the username to the image upload order
+      imageUploadOrder.push(data.username);
+
+      // Call modifyPoints function with the room ID and updated point modifiers
+      modifyPoints(data.roomId);
     });
+    function modifyPoints(roomId) {
+      const room = rooms.find((room) => room.id === roomId);
+      if (!room) {
+        console.log("Room not found");
+        return;
+      }
+
+      // Reset points for all players
+      room.players.forEach((player) => (player.points = 0));
+
+      // Assign points based on the image upload order
+      imageUploadOrder.forEach((username, index) => {
+        const player = room.players.find(
+          (player) => player.username.trim() === username.trim()
+        );
+        if (player) {
+          player.points += index + 1; // Assign points based on the order
+          console.log(
+            `Points modified for player ${username} in Room ${roomId}`
+          );
+        } else {
+          console.log(`Player ${username} not found in Room ${roomId}`);
+        }
+      });
+
+      // Log the updated room object
+      console.log(room);
+
+      // Clear the image upload order for the next round
+      imageUploadOrder = [];
+    }
     socket.on("disconnect", () => {
       console.log(`${socket.id} is gone`);
       if (room !== undefined) {

@@ -7,6 +7,7 @@ for (let i = 0; i < MAX_ROOMS; i++) {
     id: i,
     players: [],
     current_obj: "",
+
   });
 }
 
@@ -85,28 +86,7 @@ function generateLeaderboard(roomId) {
 
   return leaderboard;
 }
-function modifyPoints(roomId, pointModifiers) {
-  const room = rooms.find((room) => room.id === roomId);
-  if (!room) {
-    console.log("Room not found");
-    return;
-  }
 
-  Object.entries(pointModifiers).forEach(([username, modifier]) => {
-    const player = room.players.find(
-      (player) => player.username.trim() === username.trim()
-    );
-    if (player) {
-      player.points += modifier;
-      console.log(`Points modified for player ${username} in Room ${roomId}`);
-    } else {
-      console.log(`Player ${username} not found in Room ${roomId}`);
-    }
-  });
-
-  // Log the updated room object
-  console.log(room);
-}
 
 function sendLeaderboardToServer(roomId, leaderboard) {
   // Simulate sending data to the server
@@ -120,6 +100,6 @@ export {
   assignRoom,
   addPlayer,
   removePlayer,
-  modifyPoints,
+  // modifyPoints,
   generateLeaderboard,
 };
