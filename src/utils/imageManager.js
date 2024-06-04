@@ -7,19 +7,15 @@ import { GetRoomDetails } from "./roomManager.js";
 //temporary function name
 const checkImage = async (image, roomId) => {
   try {
-    const name = Math.random();
-    await fs.writeFile("uploads/" + name + ".jpg", image);
     console.log("Image uploaded");
     
-    // Loading the model and the image
-    const loadimage = await fs.readFile("uploads/" + name + ".jpg");
-    const [model, imageBuffer] = await Promise.all([
+    // Loading the model
+    const [model] = await Promise.all([
       cocoSsd.load(),
-      loadimage,
     ]);
 
     // Decoding the image to tensor
-    const img = tf.node.decodeImage(imageBuffer, 3);
+    const img = tf.node.decodeImage(image, 3);
 
     // Detecting objects in the image
     const predictions = await model.detect(img);
