@@ -79,7 +79,6 @@ export function initializeSocket(httpServer) {
         //Storing username and assigning a room
         user = username;
         room = assignRoom();
-        console.log(user, room);
 
         //Checking if a room is assigned successfully
         if (room !== undefined) {

@@ -1,4 +1,11 @@
-import { generateObject, resetStats, rooms, setPlaying, setRound } from "./roomManager.js";
+import {
+  generateObject,
+  resetStats,
+  rooms,
+  setPlaying,
+  setRound,
+  resetPoints
+} from "./roomManager.js";
 //Function to start the game
 const startGame = (roomId, io) => {
   //Finding the current room
@@ -26,11 +33,16 @@ const startGame = (roomId, io) => {
       setRound(roomId, 0); //Reset rounds
       resetStats(roomId); //Reset flags of players(not points)
       io.to(roomId).emit("game", { msg: "Match ended" });
+      io.to(roomId).emit("game", "SYSTEM: Starting new match in 10 seconds");
+      setTimeout(() => {
+        resetPoints(roomId);
+        startGame(roomId, io);
+      }, 10000);
     } else {
       //Starting round after 5 seconds
       setTimeout(() => {
         //generating a random object
-        const randomObj = generateObject(room.id)
+        const randomObj = generateObject(room.id);
 
         setPlaying(roomId, true); //set the isPlaying flag of room to true
         setRound(roomId, nroom.round + 1); //Update round number
@@ -47,16 +59,15 @@ const startGame = (roomId, io) => {
         io.to(roomId).emit("game", {
           msg: "round started",
           object: room.current_obj,
-          round: room.round
+          round: room.round,
         });
       }, 5000);
-      console.log("current_obj", room.current_obj)
+      console.log("current_obj", room.current_obj);
       io.to(roomId).emit("game", { msg: "starting game in 5sec" });
     }
   };
 
   a();
 };
-
 
 export { startGame };

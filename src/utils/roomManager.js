@@ -79,7 +79,6 @@ function removePlayer(socketId, roomId) {
 
 //Function to generate leaderboard
 function generateLeaderboard(roomId) {
-  console.log(roomId)
   const room = rooms.find((room) => room.id == roomId);
   if (!room) {
     return [];
@@ -197,6 +196,18 @@ function generateObject(roomId) {
   return randomObj;
 }
 
+function resetPoints(roomId) {
+  for (let ind = 0; ind < rooms.length; ind++) {
+    const room = rooms[ind];
+    if (room.id === roomId) {
+      for (let playerInd = 0; playerInd < room.players.length; playerInd++) {
+        rooms[ind].players[playerInd].points = 0;
+      }
+      break;
+    }
+  }
+}
+
 export {
   rooms,
   assignNewRoom,
@@ -211,4 +222,5 @@ export {
   setRound,
   resetStats,
   generateObject,
+  resetPoints,
 };
