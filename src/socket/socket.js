@@ -104,7 +104,7 @@ export function initializeSocket(httpServer) {
     });
 
     socket.on("joinById", async (data) => {
-      let {username, roomId} = await JSON.parse(data);
+      let { username, roomId } = await JSON.parse(data);
       if (!username) {
         // If no username, emitting error.
         io.to(socket.id).emit("error", "Please send username");
@@ -160,10 +160,11 @@ export function initializeSocket(httpServer) {
     socket.on("upload", async (data) => {
       //Checking if data is being recieved in correct format and also checking if user and room exists
       if (
-        typeof data !== "object" &&
-        data.hasOwnProperty("image") &&
-        user &&
-        room !== undefined
+        typeof data !== "object" ||
+        !(data.hasOwnProperty("image")) ||
+        !user ||
+        room === undefined ||
+        !data.image
       ) {
         //Emitting error if data is in wrong format or user and room isnt defined.
         io.to(socket.id).emit("error", "Data recieved in wrong format.");
@@ -193,8 +194,7 @@ export function initializeSocket(httpServer) {
             //Checking if image matches the object
             const isCorrectObject = await checkImage(buffer, room);
 
-
-            console.log(isCorrectObject)
+            console.log(isCorrectObject);
 
             //Assigning points to user if image is correct
             const playersSubmitted = currentRoom.players.filter(
